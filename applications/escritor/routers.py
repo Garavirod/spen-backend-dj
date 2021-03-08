@@ -8,6 +8,7 @@ router = DefaultRouter()
 
 # Registramos rutas
 router.register(r'register',viewsets.RegisterUserViewset, basename='register')
+router.register(r'login',viewsets.LoginUserViewSet, basename='login')
 
 
 # Definición de urlpatterns

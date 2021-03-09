@@ -15,6 +15,7 @@ from .serializers import (
 from .models import Usuarios
 # Django
 from django.shortcuts import render
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 class RegisterNewUserAPIView(CreateAPIView):
@@ -86,17 +87,24 @@ class LoginUserAPIView(APIView):
         deserialized_data.is_valid(raise_exception=True)
         # verificamos la existencia del usuario
         try:
-            # Recuperamos usuario y token
+            # Recuperamos usuario
             user = Usuarios.objects.get(email=deserialized_data.data['email'])
-            token = Token.objects.get(user=user)
-            # Datos del usuario a retornar
-            data_user = {                
-                'email':user.email,
-                'username':user.username,
-                'uid':user.pk,
-                'token':token.key
-            }
-            return Response(data_user, status=status.HTTP_202_ACCEPTED)
+            # verificamos password del usuario
+            valid_pass = user.check_password(deserialized_data.data['password'])
+            if valid_pass:  # si el passowrd fué valido
+                # revuperamos el token del usuario
+                token = Token.objects.get(user=user)
+                # Datos del usuario a retornar
+                data_user = {                
+                    'email':user.email,
+                    'username':user.username,
+                    'uid':user.pk,
+                    'token':token.key
+                }
+                return Response(data_user, status=status.HTTP_202_ACCEPTED)
+                # Usuario no autorizado
+            return Response({'message':'Credenciales incorrectas'}, status=status.HTTP_401_UNAUTHORIZED)
         except Usuarios.DoesNotExist:
+            # El usuario no existe
             return Response({'message':'El usuario no existe'}, status=status.HTTP_404_NOT_FOUND)
            

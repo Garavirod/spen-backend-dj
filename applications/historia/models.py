@@ -110,13 +110,14 @@ class Valoraciones(TimeStampedModel):
 """ Signals """
 
 def get_avg_valoracion(sender, instance, **kwargs):
-    if instance:
+    if instance: # Recuperamos la instancia del modelo
+        # obtenemos el puntaje promedio de la historia valorada
         puntaje_calculado = Valoraciones.objects.filter(
             historia_valoracion=instance.historia_valoracion
         ).aggregate(Avg('puntaje', output_field=models.IntegerField()))
+        # asiganamos el puntaje promedio a la instancia valorada
         instance.historia_valoracion.puntaje = puntaje_calculado['puntaje__avg']
-        instance.historia_valoracion.save()
-        print("El puntaje es ", puntaje_calculado)
-
+        # guaradamos cambios en la instancia de la historia
+        instance.historia_valoracion.save()        
 
 post_save.connect(get_avg_valoracion, sender=Valoraciones)

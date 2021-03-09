@@ -19,5 +19,6 @@ from django.urls import path, re_path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     # viewsets router
-    re_path('credentials/',include('applications.escritor.urls'))
+    re_path('credentials/',include('applications.escritor.urls')),
+    re_path('stories/',include('applications.historia.urls')),
 ]

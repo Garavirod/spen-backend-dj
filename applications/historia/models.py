@@ -22,18 +22,18 @@ class Historias(TimeStampedModel):
     genero = models.CharField(
         'genero',
         max_length=20,
-        default=''
+        blank=True
     )
 
     sinopsis = models.TextField(
         'sinopsis',
         max_length=500,
-        default=''
+        blank=True
     )
 
     contenido = models.TextField(
         'contenido',
-        default=''
+        blank=True
     )
 
     status = models.BooleanField(
@@ -83,7 +83,7 @@ class Valoraciones(TimeStampedModel):
     """ 
         Esta clase define la estructura del modelo valoración  
     """
-    puntaje = models.PositiveIntegerField('puntaje', max_length=1, default=0)
+    puntaje = models.PositiveIntegerField('puntaje', default=0)
 
     # Un usuario pude hacer multiples valoraciuones
     autor_valoracion = models.ForeignKey(Usuarios, on_delete=models.CASCADE)

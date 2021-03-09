@@ -54,6 +54,7 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
     'applications.escritor',
+    'applications.historia',
 )
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS

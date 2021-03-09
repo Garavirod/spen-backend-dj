@@ -92,7 +92,7 @@ class LoginUserAPIView(APIView):
             # verificamos password del usuario
             valid_pass = user.check_password(deserialized_data.data['password'])
             if valid_pass:  # si el passowrd fué valido
-                # revuperamos el token del usuario
+                # recuperamos el token del usuario
                 token = Token.objects.get(user=user)
                 # Datos del usuario a retornar
                 data_user = {                

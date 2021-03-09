@@ -1,11 +1,13 @@
 from django.db import models
+from django.db.models import Avg
+from django.db.models.signals import post_save
 from model_utils.models import TimeStampedModel
 # Models
 from applications.escritor.models import Usuarios
 
 class Historias(TimeStampedModel):
     """ 
-        Este calse define la estructura del modelo Historias,        
+        Esta clase define la estructura del modelo Historias,        
     """
     titulo = models.CharField(
         'titulo',
@@ -41,6 +43,9 @@ class Historias(TimeStampedModel):
         default=False
     )
 
+    # Valoración de la historia
+    puntaje = models.PositiveIntegerField('puntaje', default=0)
+
     # Un autor puede tener muchas historias
     autor = models.ForeignKey(
         Usuarios,
@@ -56,7 +61,7 @@ class Historias(TimeStampedModel):
 
 class Comentarios(TimeStampedModel):
     """ 
-        Este calse define la estructura del modelo cometario,        
+        Esta clase define la estructura del modelo cometario,        
     """
     contenido = models.TextField(
         'contenido',
@@ -77,12 +82,13 @@ class Comentarios(TimeStampedModel):
         verbose_name_plural = 'comentarios'
 
     def __str__(self):
-        return str(self.pk)
+        return self.autor_comentario.email
 
 class Valoraciones(TimeStampedModel):
     """ 
         Esta clase define la estructura del modelo valoración  
-    """
+    """    
+    # Puntaje asignado a la historia
     puntaje = models.PositiveIntegerField('puntaje', default=0)
 
     # Un usuario pude hacer multiples valoraciuones
@@ -94,6 +100,23 @@ class Valoraciones(TimeStampedModel):
     class Meta:
         verbose_name = 'Valoración'
         verbose_name_plural = 'Valoraciones'
+        # Un escritor no puede valorar una misma historia más de una véz
+        # unique_together = ['autor_valoracion','historia_valoracion']
 
     def __str__(self):
-        return str(self.puntaje)
+        return str(self.historia_valoracion.titulo)
+
+
+""" Signals """
+
+def get_avg_valoracion(sender, instance, **kwargs):
+    if instance:
+        puntaje_calculado = Valoraciones.objects.filter(
+            historia_valoracion=instance.historia_valoracion
+        ).aggregate(Avg('puntaje', output_field=models.IntegerField()))
+        instance.historia_valoracion.puntaje = puntaje_calculado['puntaje__avg']
+        instance.historia_valoracion.save()
+        print("El puntaje es ", puntaje_calculado)
+
+
+post_save.connect(get_avg_valoracion, sender=Valoraciones)

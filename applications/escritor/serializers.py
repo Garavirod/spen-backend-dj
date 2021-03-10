@@ -18,3 +18,4 @@ class AutorSerializerData(serializers.ModelSerializer):
         model = Usuarios
         fields = ('pk','username','aboutme','email')
 
+

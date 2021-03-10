@@ -39,3 +39,61 @@ class GetDataHistoriasSerializer(serializers.HyperlinkedModelSerializer):
     def get_autor_name(self,obj):
         """ Retrona como campo el nombre del autor de la instancia obj (Historia) """
         return str(obj.autor.username)
+
+class  HistoriasBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Historias
+        exclude = ['autor','contenido']
+
+class AutorProfileSerializer(serializers.ModelSerializer):
+    """ 
+        Se encarga de desraializar datos del modelo Usuario
+        cons sus respectivas histroias publicadas con el
+        status (True).
+        Se utiliza cuando un escritor ve el peril de otro
+        escritor. 
+    """
+    # inyectamos un nuevo campo en el modelo
+    historias = serializers.SerializerMethodField()
+    class Meta:
+        model = Usuarios
+        fields = (
+            'username',
+            'email',
+            'aboutme',
+            'historias', # campo inyectado
+        )
+
+    def get_historias(self,obj):        
+        # todas las historias que son del autor y que ya son termiandas
+        historias = obj.historias_set.filter(status=True)
+        # deserializamos ls historias
+        deserialized = HistoriasBriefSerializer(historias, many=True)
+        # retornamos la data
+        return deserialized.data
+
+class MyProfileSerializer():
+    """ 
+        Se encarga de desraializar datos del modelo Usuario
+        con sus respectivas histroias que pueden estar terminadas o no.
+        Se utiliza cuando un escritor ve su propia infromación de su peril
+        escritor. 
+    """
+    # inyectamos un nuevo campo en el modelo
+    historias = serializers.SerializerMethodField()
+    class Meta:
+        model = Usuarios
+        fields = (
+            'username',
+            'email',
+            'aboutme',
+            'historias', # campo inyectado
+        )
+
+    def get_historias(self,obj):        
+        # todas las historias que son del autor y que ya son termiandas
+        historias = obj.historias_set.all()
+        # deserializamos ls historias
+        deserialized = HistoriasBriefSerializer(historias, many=True)
+        # retornamos la data
+        return deserialized.data

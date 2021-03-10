@@ -17,4 +17,14 @@ urlpatterns = [
         views.AllPublishedStoriesAPIView.as_view(),
         name = 'all-stories'
     ),
+    path(
+        'all-autor-stories/',
+        views.AllAutorStoriesAPIView.as_view(),
+        name = 'all-autor-stories' 
+    ),
+    path(
+        'profile-autor/<pk>/',
+        views.ProfileAuthorAPIView.as_view(),
+        name = 'profile-autor' 
+    )
 ]

@@ -10,14 +10,18 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import (
     CreateAPIView,
-    ListAPIView,
+    ListAPIView,    
+    RetrieveAPIView,
 )
 # Model
 from .models import Historias
+from applications.escritor.models import Usuarios
 # Serializers
 from .serializers import (
     NewStorySerializer,
-    GetDataHistoriasSerializer,
+    GetDataHistoriasSerializer,  
+    HistoriasBriefSerializer,
+    AutorProfileSerializer,  
 )
 
 class RegisterNewStoryAPIView(CreateAPIView):
@@ -62,9 +66,47 @@ class RegisterNewStoryAPIView(CreateAPIView):
 
 class AllPublishedStoriesAPIView(ListAPIView):
     """ 
-        Muestra la infromación resumida todas las 
+        Muestra la información resumida de todas las 
         historias que han sido marcadas con estatus 
         terminado (True)
     """
     serializer_class = GetDataHistoriasSerializer
     queryset = Historias.objects.filter(status=True)
+
+class AllAutorStoriesAPIView(ListAPIView):
+    """ 
+        Muestra todas la historias a sus propietario    
+    """
+
+    # Verifivamos la autenticación del usuario 
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, #if is authenticated     
+    ] 
+    
+    #Ligamos serializador
+    serializer_class = HistoriasBriefSerializer  
+
+    # Override
+    def get_queryset(self):
+        # Obtenemos la usuario que solicita la petición
+        autor = self.request.user    
+        # Obtenemos las historias del autor con user_instance.modelname_set.all()    
+        queryset = autor.historias_set.all()
+        return queryset
+
+
+class ProfileAuthorAPIView(RetrieveAPIView):
+    """ 
+        Muestra la información de un autor en especifico
+        además de las historias que ya han sido publicdas
+        por dicho autor.
+    """
+    # ligamos el serializador
+    serializer_class = AutorProfileSerializer    
+    
+    # Override
+    def get_queryset(self):                
+        queryset = Usuarios.objects.filter()            
+        return queryset

@@ -1,8 +1,9 @@
 # Third partty apps
-from rest_framework import serializers
+from rest_framework import serializers, pagination
 # Models
 from .models import Historias
 from applications.escritor.models import Usuarios
+
 
 
 class NewStorySerializer(serializers.ModelSerializer):
@@ -10,6 +11,44 @@ class NewStorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Historias
         fields = ['titulo','narrativa','genero']
+
+
+
+
+class AllStoriesSerializer(serializers.ModelSerializer):
+    """ Serializer para recuperar los datos resumidos de una historia """  
+    # Inyectamos nuevos campos en el json
+    autor_name = serializers.SerializerMethodField()
+    class Meta:
+        model = Historias
+        fields = (
+            'titulo',
+            'narrativa',
+            'genero',
+            'sinopsis',
+            'created',
+            'puntaje',
+            'autor_name', # attribute added
+            'autor', #FK
+        )
+        
+    def get_autor_name(self,obj):
+        """ Retrona como campo el nombre del autor de la instancia obj (Historia) """
+        return str(obj.autor.username)
+
+
+
+
+
+
+
+
+""" Not added """
+
+class  HistoriasBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Historias
+        exclude = ['autor','contenido']
 
 class GetDataHistoriasSerializer(serializers.HyperlinkedModelSerializer):  
     """ Serializer para recuperar los datos resumidos de una historia """  
@@ -40,11 +79,6 @@ class GetDataHistoriasSerializer(serializers.HyperlinkedModelSerializer):
         """ Retrona como campo el nombre del autor de la instancia obj (Historia) """
         return str(obj.autor.username)
 
-class  HistoriasBriefSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Historias
-        exclude = ['autor','contenido']
-
 class AutorProfileSerializer(serializers.ModelSerializer):
     """ 
         Se encarga de desraializar datos del modelo Usuario
@@ -72,7 +106,7 @@ class AutorProfileSerializer(serializers.ModelSerializer):
         # retornamos la data
         return deserialized.data
 
-class MyProfileSerializer():
+class MyProfileSerializer(serializers.ModelSerializer):
     """ 
         Se encarga de desraializar datos del modelo Usuario
         con sus respectivas histroias que pueden estar terminadas o no.

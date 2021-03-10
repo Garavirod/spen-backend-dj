@@ -1,5 +1,6 @@
 # Dajngo
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 # third party apps
 from rest_framework.response import Response
 from rest_framework import status
@@ -22,6 +23,8 @@ from .serializers import (
     GetDataHistoriasSerializer,  
     HistoriasBriefSerializer,
     AutorProfileSerializer,  
+    MyProfileSerializer,
+    AllStoriesSerializer,
 )
 
 class RegisterNewStoryAPIView(CreateAPIView):
@@ -70,9 +73,62 @@ class AllPublishedStoriesAPIView(ListAPIView):
         historias que han sido marcadas con estatus 
         terminado (True)
     """
-    serializer_class = GetDataHistoriasSerializer
+    serializer_class = AllStoriesSerializer
+    # Todas las historias que ya han sido finalizadas
     queryset = Historias.objects.filter(status=True)
 
+class AuthorStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la iformación resumiada de las
+        historias terminadas de un autor en 
+        especifico.
+    """
+    # ligamos el serializador
+    serializer_class = AllStoriesSerializer        
+    # Override
+    def get_queryset(self):
+        # Obtenemos el autor por pk           
+        autor = get_object_or_404(Usuarios,pk=self.kwargs['pk'])
+        # filtramos las historias del autor              
+        queryset = Historias.objects.filter(status=True, autor=autor)            
+        return queryset
+
+class MyStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la iformación resumiada de las
+        historias terminadas del propio autor,
+        es necesario mandar el token.
+    """
+    
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, # Verificamos la autenticación del usuario 
+    ] 
+
+    # ligamos el serializador
+    serializer_class = AllStoriesSerializer        
+    # Override
+    def get_queryset(self):
+        # Obtenemos el autor por pk           
+        autor = get_object_or_404(Usuarios,pk=self.kwargs['pk'])
+        # filtramos las historias del autor              
+        queryset = Historias.objects.filter(autor=autor)            
+        return queryset
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" -------------------- not added ----------"""
 class AllAutorStoriesAPIView(ListAPIView):
     """ 
         Muestra todas la historias a sus propietario    
@@ -105,6 +161,25 @@ class ProfileAuthorAPIView(RetrieveAPIView):
     """
     # ligamos el serializador
     serializer_class = AutorProfileSerializer    
+    
+    # Override
+    def get_queryset(self):                
+        queryset = Usuarios.objects.filter()            
+        return queryset
+
+class MyProfileAPIView(RetrieveAPIView):
+    """ 
+        Muestra la iformación de peril de un usuerio en específico
+    """
+    # Verifivamos la autenticación del usuario 
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, #if is authenticated     
+    ] 
+    
+    # ligamos el serializador
+    serializer_class =  MyProfileSerializer
     
     # Override
     def get_queryset(self):                

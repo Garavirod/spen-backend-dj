@@ -110,7 +110,7 @@ class LoginUserAPIView(APIView):
             # El usuario no existe
             return Response({'message':'El usuario no existe'}, status=status.HTTP_404_NOT_FOUND)
            
-class AutorDataAPIView(RetrieveAPIView):
+class EscritorProfileAPIView(RetrieveAPIView):
     """ Muestra los datos de un autor en específico basado en su PK """
     serializer_class = AutorSerializerData
     queryset = Usuarios.objects.filter()

@@ -19,7 +19,7 @@ urlpatterns = [
     ),
     path(
         'autor/<pk>',
-        views.AutorDataAPIView.as_view(),
+        views.EscritorProfileAPIView.as_view(),
         name = "autor-data",
     )
 ]

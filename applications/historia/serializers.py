@@ -1,7 +1,7 @@
 # Third partty apps
 from rest_framework import serializers, pagination
 # Models
-from .models import Historias
+from .models import Historias, Comentarios
 from applications.escritor.models import Usuarios
 
 
@@ -49,7 +49,15 @@ class ReadingStorySerialiser(BriefStoriesSerializer):
         
   
 
-
+class StoryCommentsSerializer(serializers.ModelSerializer):
+    """ Serializer para obtener todos los comentarios de una historia """
+    autor_username = serializers.SerializerMethodField()
+    class Meta:
+        model = Comentarios
+        fields = ('contenido','autor_comentario','autor_username',)
+    def get_autor_username(self,instance):
+        """ Retorna el nombre del usuario de la instancia comentario """
+        return str(instance.autor_comentario.username)
 
 
 

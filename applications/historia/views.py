@@ -26,6 +26,7 @@ from .serializers import (
     MyProfileSerializer,
     BriefStoriesSerializer,
     ReadingStorySerialiser,
+    StoryCommentsSerializer,
 )
 
 class RegisterNewStoryAPIView(CreateAPIView):
@@ -126,6 +127,20 @@ class ReadingModeStoryAPIView(RetrieveAPIView):
     queryset = Historias.objects.filter()
 
 
+class StoryCommentsView(ListAPIView):
+    """ Muestra todos los comentarios de una historia 
+        en especifico basado en sus PK
+    """
+
+    # Ligamos serializador
+    serializer_class = StoryCommentsSerializer
+
+    # Override
+    def get_queryset(self):
+        # resuperamos histria por pk
+        historia = get_object_or_404(Historias, pk=self.kwargs['storyPk'])
+        queryset = historia.comentarios_set.all()
+        return queryset
 
 
 

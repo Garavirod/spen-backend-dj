@@ -31,5 +31,10 @@ urlpatterns = [
         'reading/<pk>/',
         views.ReadingModeStoryAPIView.as_view(),
         name = 'reading' 
-    )
+    ),
+    path(
+        'story-comments/<storyPk>/',
+        views.StoryCommentsView.as_view(),
+        name = 'story-comments' 
+    ),
 ]

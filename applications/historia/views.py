@@ -24,7 +24,8 @@ from .serializers import (
     HistoriasBriefSerializer,
     AutorProfileSerializer,  
     MyProfileSerializer,
-    AllStoriesSerializer,
+    BriefStoriesSerializer,
+    ReadingStorySerialiser,
 )
 
 class RegisterNewStoryAPIView(CreateAPIView):
@@ -73,7 +74,7 @@ class AllPublishedStoriesAPIView(ListAPIView):
         historias que han sido marcadas con estatus 
         terminado (True)
     """
-    serializer_class = AllStoriesSerializer
+    serializer_class = BriefStoriesSerializer
     # Todas las historias que ya han sido finalizadas
     queryset = Historias.objects.filter(status=True)
 
@@ -84,7 +85,7 @@ class AuthorStoriesAPIView(ListAPIView):
         especifico.
     """
     # ligamos el serializador
-    serializer_class = AllStoriesSerializer        
+    serializer_class = BriefStoriesSerializer        
     # Override
     def get_queryset(self):
         # Obtenemos el autor por pk           
@@ -107,7 +108,7 @@ class MyStoriesAPIView(ListAPIView):
     ] 
 
     # ligamos el serializador
-    serializer_class = AllStoriesSerializer        
+    serializer_class = BriefStoriesSerializer        
     # Override
     def get_queryset(self):
         # Obtenemos el autor por pk           
@@ -117,8 +118,12 @@ class MyStoriesAPIView(ListAPIView):
         return queryset
 
 
-
-
+class ReadingModeStoryAPIView(RetrieveAPIView):
+    """ Recupera una historia junto con su contenido por PK  """
+    # Ligamos seriaizador
+    serializer_class = ReadingStorySerialiser
+    # override
+    queryset = Historias.objects.filter()
 
 
 

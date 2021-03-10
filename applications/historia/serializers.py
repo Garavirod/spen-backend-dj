@@ -12,16 +12,15 @@ class NewStorySerializer(serializers.ModelSerializer):
         model = Historias
         fields = ['titulo','narrativa','genero']
 
-
-
-
-class AllStoriesSerializer(serializers.ModelSerializer):
+class BriefStoriesSerializer(serializers.ModelSerializer):
     """ Serializer para recuperar los datos resumidos de una historia """  
+
     # Inyectamos nuevos campos en el json
     autor_name = serializers.SerializerMethodField()
     class Meta:
         model = Historias
         fields = (
+            'pk',
             'titulo',
             'narrativa',
             'genero',
@@ -35,6 +34,26 @@ class AllStoriesSerializer(serializers.ModelSerializer):
     def get_autor_name(self,obj):
         """ Retrona como campo el nombre del autor de la instancia obj (Historia) """
         return str(obj.autor.username)
+
+
+class ReadingStorySerialiser(BriefStoriesSerializer):    
+    """ 
+        Serializer para recuperar los datos de una historia en su modo lectura.
+        La clase hereda de la clase BriefStoriesSerializer y solo se injecta un
+        nuevo campo (contenido) en la tupla fields del padre.
+    """
+
+    # Inyectamos el campo 'contendio' en la tupla del padre.
+    class Meta(BriefStoriesSerializer.Meta):
+        BriefStoriesSerializer.Meta.fields += ('contenido',)
+        
+  
+
+
+
+
+
+
 
 
 

@@ -26,5 +26,10 @@ urlpatterns = [
         'my-stories/<pk>/',
         views.MyStoriesAPIView.as_view(),
         name = 'my-stories' 
+    ),
+    path(
+        'reading/<pk>/',
+        views.ReadingModeStoryAPIView.as_view(),
+        name = 'reading' 
     )
 ]

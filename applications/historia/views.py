@@ -9,17 +9,21 @@ from rest_framework.permissions import (
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import (
-    CreateAPIView
+    CreateAPIView,
+    ListAPIView,
 )
 # Model
 from .models import Historias
 # Serializers
-from .serializers import NewStorySerializer
+from .serializers import (
+    NewStorySerializer,
+    GetDataHistoriasSerializer,
+)
 
 class RegisterNewStoryAPIView(CreateAPIView):
     """ 
-        Obtiene  los datos escenciales para la creación de 
-        una instancia del modelo Historia
+        Obtiene  los datos escenciales para la 
+        creación de una instancia del modelo Historia        
     """
     # Verifivamos la autenticación del usuario 
     # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
@@ -54,3 +58,13 @@ class RegisterNewStoryAPIView(CreateAPIView):
         except:
             # Error al crear la historia
             return Response({'message':'Error al crear la historia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AllPublishedStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la infromación resumida todas las 
+        historias que han sido marcadas con estatus 
+        terminado (True)
+    """
+    serializer_class = GetDataHistoriasSerializer
+    queryset = Historias.objects.filter(status=True)

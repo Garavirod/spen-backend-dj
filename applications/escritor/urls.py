@@ -16,5 +16,10 @@ urlpatterns = [
         'login/',
         views.LoginUserAPIView.as_view(),
         name = "login-user",
+    ),
+    path(
+        'autor/<pk>',
+        views.AutorDataAPIView.as_view(),
+        name = "autor-data",
     )
 ]

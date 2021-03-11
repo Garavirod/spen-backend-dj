@@ -113,9 +113,10 @@ class Valoraciones(TimeStampedModel):
 def get_avg_valoracion(sender, instance, **kwargs):
     """ 
         Asigna el puntaje promedio a una historia 
-        después de agrergar una valoracion 
+        basado en el puntaje de la valoración que 
+        se acaba de crear
     """
-    if instance: # Recuperamos la instancia del modelo
+    if instance: # Recuperamos la instancia actual del modelo Sender
         # obtenemos el puntaje promedio de la historia valorada
         puntaje_calculado = Valoraciones.objects.filter(
             historia_valoracion=instance.historia_valoracion
@@ -125,4 +126,19 @@ def get_avg_valoracion(sender, instance, **kwargs):
         # guaradamos cambios en la instancia de la historia
         instance.historia_valoracion.save()        
 
-# post_save.connect(get_avg_valoracion, sender=Valoraciones)
+@receiver(post_save, sender=Historias)
+def increment_num_stoires(sender,instance, **kwargs):
+    """ Actualiza el numero de historias publicadas 
+        (status=true) del autor 
+    """
+    # Verificamos que la instancia tenga el atributo status en True
+    if kwargs.get('status',True):
+        # conseguimos todos las historiuas que han sido marcadas como termiandas
+        num_historias = Historias.objects.filter(
+            status=True,
+            autor=instance.autor
+        ).count()
+        # asignamos la cantida de historias que han sido publicadas
+        instance.autor.libros_publicados = num_historias
+        # guardamos cambios en BDD
+        instance.autor.save()

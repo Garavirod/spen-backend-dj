@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Avg
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
 # Models
 from applications.escritor.models import Usuarios
@@ -108,8 +109,12 @@ class Valoraciones(TimeStampedModel):
 
 
 """ Signals """
-
+@receiver(post_save, sender=Valoraciones)
 def get_avg_valoracion(sender, instance, **kwargs):
+    """ 
+        Asigna el puntaje promedio a una historia 
+        después de agrergar una valoracion 
+    """
     if instance: # Recuperamos la instancia del modelo
         # obtenemos el puntaje promedio de la historia valorada
         puntaje_calculado = Valoraciones.objects.filter(
@@ -120,4 +125,4 @@ def get_avg_valoracion(sender, instance, **kwargs):
         # guaradamos cambios en la instancia de la historia
         instance.historia_valoracion.save()        
 
-post_save.connect(get_avg_valoracion, sender=Valoraciones)
+# post_save.connect(get_avg_valoracion, sender=Valoraciones)

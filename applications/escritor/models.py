@@ -7,6 +7,10 @@ from .managers import UserManager
 
 
 def custom_upload_image_to(instance,filename):
+    """ 
+        Actualiza la foto de perfil de un usuario
+        eliminado la anterior, si no existe la crea.
+    """
     try:
         old_instance = Usuarios.objects.get(pk=instance.pk)
         old_instance.imageProfile.delete()
@@ -15,7 +19,7 @@ def custom_upload_image_to(instance,filename):
         return 'profileImage/' + filename
 
 class Usuarios(AbstractBaseUser, PermissionsMixin):
-
+    """ Define la estructira de un usuario de la aplicación """
     GENDER_CHOICES = (
         ('M', 'Masculino'),
         ('F', 'Femenino'),
@@ -27,6 +31,8 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
         max_length=20,        
         blank=False  
     )
+
+    libros_publicados = models.PositiveIntegerField(default=0)
 
     email = models.EmailField(unique=True)
 
@@ -59,3 +65,4 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return str(self.pk) + " " + self.email
+

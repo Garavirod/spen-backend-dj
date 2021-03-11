@@ -11,6 +11,11 @@ urlpatterns = [
         views.RegisterNewStoryAPIView.as_view(),
         name = 'new-story'
     ),
+    path(
+        'values/',
+        views.AddValoracionView.as_view(),
+        name = 'new-value'
+    ),
     # GET
     path(
         'all-stoires/',
@@ -36,6 +41,11 @@ urlpatterns = [
         'story-comments/<storyPk>/',
         views.StoryCommentsView.as_view(),
         name = 'story-comments' 
+    ),
+    path(
+        'is-valued/',
+        views.AlreadyValuedView.as_view(),
+        name = 'is-valued' 
     ),
     # PUT
     path(

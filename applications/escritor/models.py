@@ -57,5 +57,5 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
 
-    def get_short_name(self):
-        return self.email
+    def __str__(self):
+        return str(self.pk) + " " + self.email

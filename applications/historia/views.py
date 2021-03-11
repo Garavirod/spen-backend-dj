@@ -1,5 +1,6 @@
 # Dajngo
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 # third party apps
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,17 +10,32 @@ from rest_framework.permissions import (
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import (
-    CreateAPIView
+    CreateAPIView,
+    ListAPIView,    
+    RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView
 )
 # Model
 from .models import Historias
+from applications.escritor.models import Usuarios
 # Serializers
-from .serializers import NewStorySerializer
+from .serializers import (
+    NewStorySerializer,
+    GetDataHistoriasSerializer,  
+    HistoriasBriefSerializer,
+    AutorProfileSerializer,  
+    MyProfileSerializer,
+    BriefStoriesSerializer,
+    FullContentSerializer,
+    StoryCommentsSerializer,
+)
+# Custom permissons
+from .permissons import IsOwner
 
 class RegisterNewStoryAPIView(CreateAPIView):
     """ 
-        Obtiene  los datos escenciales para la creación de 
-        una instancia del modelo Historia
+        Obtiene  los datos escenciales para la 
+        creación de una instancia del modelo Historia        
     """
     # Verifivamos la autenticación del usuario 
     # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
@@ -54,3 +70,161 @@ class RegisterNewStoryAPIView(CreateAPIView):
         except:
             # Error al crear la historia
             return Response({'message':'Error al crear la historia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AllPublishedStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la información resumida de todas las 
+        historias que han sido marcadas con estatus 
+        terminado (True)
+    """
+    serializer_class = BriefStoriesSerializer
+    # Todas las historias que ya han sido finalizadas
+    queryset = Historias.objects.filter(status=True)
+
+class AuthorStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la iformación resumiada de las
+        historias terminadas de un autor en 
+        especifico.
+    """
+    # ligamos el serializador
+    serializer_class = BriefStoriesSerializer        
+    # Override
+    def get_queryset(self):
+        # Obtenemos el autor por pk           
+        autor = get_object_or_404(Usuarios,pk=self.kwargs['pk'])
+        # filtramos las historias del autor              
+        queryset = Historias.objects.filter(status=True, autor=autor)            
+        return queryset
+
+class MyStoriesAPIView(ListAPIView):
+    """ 
+        Muestra la iformación resumiada de las
+        historias terminadas del propio autor,
+        es necesario mandar el token.
+    """
+    
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, # Verificamos la autenticación del usuario 
+    ] 
+
+    # ligamos el serializador
+    serializer_class = BriefStoriesSerializer        
+    # Override
+    def get_queryset(self):
+        # Obtenemos el autor por pk           
+        autor = get_object_or_404(Usuarios,pk=self.kwargs['pk'])
+        # filtramos las historias del autor              
+        queryset = Historias.objects.filter(autor=autor)            
+        return queryset
+
+
+class ReadingModeStoryAPIView(RetrieveAPIView):
+    """ Recupera una historia junto con su contenido por PK  """
+    # Ligamos seriaizador
+    serializer_class = FullContentSerializer
+    # override
+    queryset = Historias.objects.filter()
+
+class WrittingModeStoryView(RetrieveUpdateDestroyAPIView):
+    """  
+        Recupera una historia en modo edición y la actualiza 
+        o elimina si el usuario es autor de la historia.        
+        Se envia token en la cabecera para autenticar al usuario.
+        Puede activarse por los verbos HTTP PUT, GET, DELETE
+    """
+     # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,)
+    # verificamos que el usuario esté autenticado y que sea el propietraio de la historia 
+    permission_classes = [IsAuthenticated & IsOwner]     
+    # Ligamos el serializador
+    serializer_class = FullContentSerializer
+
+    queryset = Historias.objects.all()
+
+
+    
+
+class StoryCommentsView(ListAPIView):
+    """ Muestra todos los comentarios de una historia 
+        en especifico basado en sus PK
+    """
+
+    # Ligamos serializador
+    serializer_class = StoryCommentsSerializer
+
+    # Override
+    def get_queryset(self):
+        # resuperamos histria por pk
+        historia = get_object_or_404(Historias, pk=self.kwargs['storyPk'])
+        queryset = historia.comentarios_set.all()
+        return queryset
+
+
+
+
+
+
+
+
+
+""" -------------------- not added ----------"""
+class AllAutorStoriesAPIView(ListAPIView):
+    """ 
+        Muestra todas la historias a sus propietario    
+    """
+
+    # Verifivamos la autenticación del usuario 
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, #if is authenticated     
+    ] 
+    
+    #Ligamos serializador
+    serializer_class = HistoriasBriefSerializer  
+
+    # Override
+    def get_queryset(self):
+        # Obtenemos la usuario que solicita la petición
+        autor = self.request.user    
+        # Obtenemos las historias del autor con user_instance.modelname_set.all()    
+        queryset = autor.historias_set.all()
+        return queryset
+
+
+class ProfileAuthorAPIView(RetrieveAPIView):
+    """ 
+        Muestra la información de un autor en especifico
+        además de las historias que ya han sido publicdas
+        por dicho autor.
+    """
+    # ligamos el serializador
+    serializer_class = AutorProfileSerializer    
+    
+    # Override
+    def get_queryset(self):                
+        queryset = Usuarios.objects.filter()            
+        return queryset
+
+class MyProfileAPIView(RetrieveAPIView):
+    """ 
+        Muestra la iformación de peril de un usuerio en específico
+    """
+    # Verifivamos la autenticación del usuario 
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,) 
+    permission_classes = [
+        IsAuthenticated, #if is authenticated     
+    ] 
+    
+    # ligamos el serializador
+    serializer_class =  MyProfileSerializer
+    
+    # Override
+    def get_queryset(self):                
+        queryset = Usuarios.objects.filter()            
+        return queryset

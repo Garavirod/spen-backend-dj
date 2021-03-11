@@ -57,7 +57,7 @@ class Historias(TimeStampedModel):
         verbose_name_plural = 'Historias'
 
     def __str__(self):
-        return self.titulo
+        return str(self.pk) + ' - ' + self.titulo
 
 class Comentarios(TimeStampedModel):
     """ 

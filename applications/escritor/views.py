@@ -4,12 +4,14 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.generics import (
-    CreateAPIView
+    CreateAPIView,
+    RetrieveAPIView,
 )
 # Serializers
 from .serializers import (
     RegisterUserSerializer,
-    LoginUserSerializer
+    LoginUserSerializer,
+    AutorSerializerData,
 )
 # Models
 from .models import Usuarios
@@ -108,3 +110,7 @@ class LoginUserAPIView(APIView):
             # El usuario no existe
             return Response({'message':'El usuario no existe'}, status=status.HTTP_404_NOT_FOUND)
            
+class EscritorProfileAPIView(RetrieveAPIView):
+    """ Muestra los datos de un autor en específico basado en su PK """
+    serializer_class = AutorSerializerData
+    queryset = Usuarios.objects.filter()

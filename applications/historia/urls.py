@@ -37,4 +37,10 @@ urlpatterns = [
         views.StoryCommentsView.as_view(),
         name = 'story-comments' 
     ),
+    # PUT
+    path(
+        'writting/<pk>/',
+        views.WrittingModeStoryView.as_view(),
+        name = 'writting' 
+    ),
 ]

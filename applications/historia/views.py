@@ -13,6 +13,7 @@ from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,    
     RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView
 )
 # Model
 from .models import Historias
@@ -25,9 +26,11 @@ from .serializers import (
     AutorProfileSerializer,  
     MyProfileSerializer,
     BriefStoriesSerializer,
-    ReadingStorySerialiser,
+    FullContentSerializer,
     StoryCommentsSerializer,
 )
+# Custom permissons
+from .permissons import IsOwner
 
 class RegisterNewStoryAPIView(CreateAPIView):
     """ 
@@ -122,10 +125,28 @@ class MyStoriesAPIView(ListAPIView):
 class ReadingModeStoryAPIView(RetrieveAPIView):
     """ Recupera una historia junto con su contenido por PK  """
     # Ligamos seriaizador
-    serializer_class = ReadingStorySerialiser
+    serializer_class = FullContentSerializer
     # override
     queryset = Historias.objects.filter()
 
+class WrittingModeStoryView(RetrieveUpdateDestroyAPIView):
+    """  
+        Recupera una historia en modo edición y la actualiza 
+        o elimina si el usuario es autor de la historia.        
+        Se envia token en la cabecera para autenticar al usuario.
+        Puede activarse por los verbos HTTP PUT, GET, DELETE
+    """
+     # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,)
+    # verificamos que el usuario esté autenticado y que sea el propietraio de la historia 
+    permission_classes = [IsAuthenticated & IsOwner]     
+    # Ligamos el serializador
+    serializer_class = FullContentSerializer
+
+    queryset = Historias.objects.all()
+
+
+    
 
 class StoryCommentsView(ListAPIView):
     """ Muestra todos los comentarios de una historia 
@@ -141,6 +162,8 @@ class StoryCommentsView(ListAPIView):
         historia = get_object_or_404(Historias, pk=self.kwargs['storyPk'])
         queryset = historia.comentarios_set.all()
         return queryset
+
+
 
 
 

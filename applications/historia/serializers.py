@@ -64,7 +64,9 @@ class ValoracionSerializer(serializers.ModelSerializer):
         model = Valoraciones
         fields = ('__all__')        
 
-
+class AlreadyValuedSrializer(serializers.Serializer):
+    """ Serializer para mandar infromación sobre si ya se ha valorado una historia """    
+    is_valued = serializers.BooleanField()
 
 
 

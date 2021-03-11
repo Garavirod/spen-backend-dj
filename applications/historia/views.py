@@ -29,6 +29,7 @@ from .serializers import (
     FullContentSerializer,
     StoryCommentsSerializer,
     ValoracionSerializer,
+    AlreadyValuedSrializer,
 )
 # Custom permissons
 from .permissons import IsOwner
@@ -203,7 +204,34 @@ class AddValoracionView(CreateAPIView):
                 {'message':'La valoración no fupeagregada'}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class AlreadyValuedView(APIView):
+      
+    # Override            
+    def get(self,request):
+        try:
+            # Valoración por defecto
+            is_valued_mess = { 'is_valued' : False }
+            # Casteamos la pk's
+            pk_user = int(self.request.query_params.get('pkUser'))
+            pk_historia = int(self.request.query_params.get('pkHistoria'))
 
+            # Buscamos si el usuario ya valoro esa historia
+            is_valued = Valoraciones.objects.filter(
+                autor_valoracion__id=pk_user,
+                historia_valoracion__id=pk_historia
+            )
+
+            # si hubo un registro
+            if is_valued:
+                is_valued_mess['is_valued'] = True
+            # response 
+            return Response(is_valued_mess, status=status.HTTP_202_ACCEPTED)            
+        except:           
+            return Response(
+                    {'message':'Error al verifcar la valoración'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
 
 
 

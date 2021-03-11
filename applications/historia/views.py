@@ -16,7 +16,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView
 )
 # Model
-from .models import Historias
+from .models import Historias, Valoraciones
 from applications.escritor.models import Usuarios
 # Serializers
 from .serializers import (
@@ -28,6 +28,7 @@ from .serializers import (
     BriefStoriesSerializer,
     FullContentSerializer,
     StoryCommentsSerializer,
+    ValoracionSerializer,
 )
 # Custom permissons
 from .permissons import IsOwner
@@ -136,7 +137,7 @@ class WrittingModeStoryView(RetrieveUpdateDestroyAPIView):
         Se envia token en la cabecera para autenticar al usuario.
         Puede activarse por los verbos HTTP PUT, GET, DELETE
     """
-     # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    # tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
     authentication_classes = (TokenAuthentication,)
     # verificamos que el usuario esté autenticado y que sea el propietraio de la historia 
     permission_classes = [IsAuthenticated & IsOwner]     
@@ -145,8 +146,6 @@ class WrittingModeStoryView(RetrieveUpdateDestroyAPIView):
 
     queryset = Historias.objects.all()
 
-
-    
 
 class StoryCommentsView(ListAPIView):
     """ Muestra todos los comentarios de una historia 
@@ -163,6 +162,46 @@ class StoryCommentsView(ListAPIView):
         queryset = historia.comentarios_set.all()
         return queryset
 
+class AddValoracionView(CreateAPIView):
+    """ 
+        Captura los atributos escenciales
+        para agregar una valoracion a una historia en espcifico
+        Es necesario enviar el token por cabecera.  
+    """
+
+    # Tipo de autenticación por token mandado por cabecera Authorization: Token <_token_>
+    authentication_classes = (TokenAuthentication,)
+    # verificamos que el usuario esté autenticado y que sea el propietraio de la historia 
+    permission_classes = [IsAuthenticated]     
+    # Ligamos el serializador
+    serializer_class = ValoracionSerializer
+
+    # Override
+    def create(self, request):
+        try:
+            # Deserializamos la infromación
+            deserialized_data = ValoracionSerializer(data=request.data)
+            # validamos la data deserializada
+            deserialized_data.is_valid(raise_exception=True)
+            # Ususario que resalizo la petición
+            user = request.user
+            # Historia que se valorará
+            historia = Historias.objects.get(pk=deserialized_data.data['historia_valoracion'])
+            # Creamos una valoración
+            valoracion = Valoraciones.objects.create(
+                puntaje=deserialized_data.data['puntaje'],
+                autor_valoracion=user,
+                historia_valoracion=historia
+            )
+            # Guaradamos cambios en la BDD
+            valoracion.save()
+            # Valoración creada con exito            
+            return Response({'message':'Valoración agregada'}, status=status.HTTP_201_CREATED)
+        except:
+            # La valoración no pudo ser creada
+            return Response(
+                {'message':'La valoración no fupeagregada'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

@@ -1,7 +1,7 @@
 # Third partty apps
 from rest_framework import serializers, pagination
 # Models
-from .models import Historias, Comentarios
+from .models import Historias, Comentarios, Valoraciones
 from applications.escritor.models import Usuarios
 
 
@@ -46,7 +46,6 @@ class FullContentSerializer(BriefStoriesSerializer):
     class Meta(BriefStoriesSerializer.Meta):
         fields = BriefStoriesSerializer.Meta.fields  + ('contenido',)
         
-  
 
 class StoryCommentsSerializer(serializers.ModelSerializer):
     """ Serializer para obtener todos los comentarios de una historia """
@@ -59,7 +58,11 @@ class StoryCommentsSerializer(serializers.ModelSerializer):
         return str(instance.autor_comentario.username)
 
 
-
+class ValoracionSerializer(serializers.ModelSerializer):
+    """ Serializer para mapear el Modelo Valoracion con todos sus campos """
+    class Meta:
+        model = Valoraciones
+        fields = ('__all__')        
 
 
 

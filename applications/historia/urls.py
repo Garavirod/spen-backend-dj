@@ -11,6 +11,11 @@ urlpatterns = [
         views.RegisterNewStoryAPIView.as_view(),
         name = 'new-story'
     ),
+    path(
+        'values/',
+        views.AddValoracionView.as_view(),
+        name = 'new-value'
+    ),
     # GET
     path(
         'all-stoires/',

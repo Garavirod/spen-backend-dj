@@ -47,6 +47,21 @@ urlpatterns = [
         views.AlreadyValuedView.as_view(),
         name = 'is-valued' 
     ),
+    path(
+        'filters-all/',
+        views.FilterStoriesInAllView.as_view(),
+        name = 'filters-all' 
+    ),
+    path(
+        'filters-owner/',
+        views.FilterInMyStoriesView.as_view(),
+        name = 'filters-owner' 
+    ),
+    path(
+        'filters-writter/',
+        views.FilterInMyStoriesView.as_view(),
+        name = 'filters-writter' 
+    ),
     # PUT
     path(
         'writting/<pk>/',

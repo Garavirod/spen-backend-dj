@@ -1,6 +1,7 @@
 # Dajngo
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 # third party apps
 from rest_framework.response import Response
 from rest_framework import status
@@ -232,3 +233,35 @@ class AlreadyValuedView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
+
+class FilterStoriesInAllView(ListAPIView):
+    """ 
+        Se encarga de procesar los filtros de una histroia dentro
+        de todas la histroias que ya han ssido publicadas (status True) 
+        del sitema y desplegar una lista.
+    """
+    # Ligamos serializador
+    serializer_class = BriefStoriesSerializer
+    # Override
+    def get_queryset(self):        
+        titulo = self.request.GET.get('titulo','')
+        narrativa = self.request.GET.get('narrativa','')
+        return Historias.objects.stories_fillter(titulo,narrativa)                     
+            
+class FilterInMyStoriesView(ListAPIView):
+    """ 
+        Se encarga de procesar los filtros de una histroia dentro
+        de todas la histroias del propietario.
+    """
+    # Ligamos serializador
+    serializer_class = BriefStoriesSerializer
+    # Override
+    def get_queryset(self):        
+        titulo = self.request.GET.get('titulo','')
+        narrativa = self.request.GET.get('narrativa','')
+        type_user = self.request.GET.get('type','')
+        user_pk = self.request.GET.get('pk','')
+        if type_user == 'owner':
+            return Historias.objects.stories_fillter(titulo,narrativa,owner=user_pk)
+        return Historias.objects.stories_fillter(titulo,narrativa,writter=user_pk)
+        

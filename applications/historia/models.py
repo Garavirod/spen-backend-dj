@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
 # Models
 from applications.escritor.models import Usuarios
+# Managers
+from .managers import StoriesManager
 
 class Historias(TimeStampedModel):
     """ 
@@ -52,6 +54,10 @@ class Historias(TimeStampedModel):
         Usuarios,
         on_delete=models.CASCADE
     )
+
+    # Manager
+
+    objects = StoriesManager()
 
     class Meta:
         verbose_name = 'Historia'

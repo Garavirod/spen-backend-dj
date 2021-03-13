@@ -18,8 +18,8 @@ urlpatterns = [
         name = "login-user",
     ),
     path(
-        'autor/<pk>',
+        'profile/<pk>',
         views.EscritorProfileAPIView.as_view(),
-        name = "autor-data",
+        name = "autor-profile",
     )
 ]

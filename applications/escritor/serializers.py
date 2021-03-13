@@ -13,9 +13,16 @@ class LoginUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
     
-class AutorSerializerData(serializers.ModelSerializer):
+class AutorSerializerProfile(serializers.ModelSerializer):
     class Meta:
         model = Usuarios
-        fields = ('pk','username','aboutme','email')
+        fields = (
+                'pk',
+                'username',
+                'aboutme',
+                'email',
+                'imageProfile',
+                'libros_publicados',
+            )
 
 

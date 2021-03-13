@@ -11,7 +11,7 @@ from rest_framework.generics import (
 from .serializers import (
     RegisterUserSerializer,
     LoginUserSerializer,
-    AutorSerializerData,
+    AutorSerializerProfile,
 )
 # Models
 from .models import Usuarios
@@ -112,5 +112,5 @@ class LoginUserAPIView(APIView):
            
 class EscritorProfileAPIView(RetrieveAPIView):
     """ Muestra los datos de un autor en específico basado en su PK """
-    serializer_class = AutorSerializerData
+    serializer_class = AutorSerializerProfile
     queryset = Usuarios.objects.filter()
